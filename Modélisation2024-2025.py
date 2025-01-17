@@ -308,12 +308,12 @@ if __name__ == "__main__":
     Size = [5, 8]
     
     # Calibrate cameras and rectify images
-    # cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
-    # cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
+    cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
+    cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
     
     # Read rectified images in grayscale
-    # imageL = cv.imread(savename1, 0)
-    # imageR = cv.imread(savename2, 0)
+    imageL = cv.imread(savename1, 0)
+    imageR = cv.imread(savename2, 0)
     
     # # Uncomment to perform stereo calibration and epipolar geometry
     # pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
