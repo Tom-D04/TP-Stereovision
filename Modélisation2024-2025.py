@@ -13,15 +13,15 @@ import stereovision
 
 def CameraCalibration(Size, path, path1image, savename):
     """
-    Calibrates a camera using chessboard images and rectifies a given image.
-    Parameters:
-    Size (tuple): The number of inner corners per a chessboard row and column (rows, columns).
-    path (str): The path to the directory containing chessboard images for calibration.
-    path1image (str): The path to the image that needs to be rectified.
-    savename (str): The name of the file to save the rectified image.
-    Returns:
-    newcameramtx (numpy.ndarray): The new camera matrix after calibration.
-    dst (numpy.ndarray): The rectified image.
+    Calibre une caméra en utilisant des images d'échiquier et rectifie une image donnée.
+    Paramètres:
+    Size (tuple): Le nombre de coins intérieurs par ligne et colonne de l'échiquier (lignes, colonnes).
+    path (str): Le chemin vers le répertoire contenant les images d'échiquier pour la calibration.
+    path1image (str): Le chemin vers l'image qui doit être rectifiée.
+    savename (str): Le nom du fichier pour enregistrer l'image rectifiée.
+    Retourne:
+    newcameramtx (numpy.ndarray): La nouvelle matrice de la caméra après calibration.
+    dst (numpy.ndarray): L'image rectifiée.
     """
     # Définition des critères pour la précision des coins de pixels
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -74,7 +74,7 @@ def CameraCalibration(Size, path, path1image, savename):
     mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)
     dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
     
-    # Recadrer l'image en fonction de la région d'intérêt
+    # Recadrer l'image rectifiée
     x, y, w, h = roi
     dst = dst[y:y + h, x:x + w]
     cv.namedWindow('img', cv.WINDOW_KEEPRATIO)
@@ -84,7 +84,7 @@ def CameraCalibration(Size, path, path1image, savename):
     # Enregistrer l'image rectifiée
     cv.imwrite(savename, dst)
 
-    # Calculer l'erreur de reprojection totale
+    # 
     mean_error = 0
     for i in range(len(objpoints)):
         imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist) # Projette les points 3D sur le plan 2D
@@ -95,18 +95,7 @@ def CameraCalibration(Size, path, path1image, savename):
     return newcameramtx, dst # Renvoie la nouvelle matrice de calibration de la caméra et l'image rectifiée
 
 def drawlines(img1, img2, lines, pts1, pts2):
-    """_summary_
 
-    Args:
-        img1 (_type_): _description_
-        img2 (_type_): _description_
-        lines (_type_): _description_
-        pts1 (_type_): _description_
-        pts2 (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
     ''' img1 - image sur laquelle nous dessinons les épilignes pour les points dans img2
         lines - épilignes correspondantes '''
     r, c = img1.shape
@@ -122,15 +111,7 @@ def drawlines(img1, img2, lines, pts1, pts2):
     return img1, img2
 
 def StereoCalibrate(rect1, rect2):
-    """_summary_
 
-    Args:
-        rect1 (_type_): _description_
-        rect2 (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
     # Créer un détecteur SIFT
     sift = cv.SIFT_create()
     
@@ -182,16 +163,7 @@ def StereoCalibrate(rect1, rect2):
     return pts1, pts2, F, maskF
 
 def EpipolarGeometry(pts1, pts2, F, maskF, img1, img2):
-    """_summary_
 
-    Args:
-        pts1 (_type_): _description_
-        pts2 (_type_): _description_
-        F (_type_): _description_
-        maskF (_type_): _description_
-        img1 (_type_): _description_
-        img2 (_type_): _description_
-    """
     r, c = img1.shape
 
     # Sélectionner uniquement les points inliers
@@ -251,15 +223,12 @@ def update_disparity(imgL, imgR):
                                   speckleRange=speckle_range)
     
     disparity = stereo.compute(imgL, imgR).astype(np.float32) / 16.0
+    
     cv.imshow('Disparity', (disparity - min_disp) / num_disp)
 
+    
 def DepthMapfromStereoImages(imgL, imgR):
-    """_summary_
 
-    Args:
-        imgL (_type_): _description_
-        imgR (_type_): _description_
-    """
     # Définir les paramètres pour l'algorithme de correspondance stéréo
     global window_size
     window_size = 3
@@ -277,14 +246,18 @@ def DepthMapfromStereoImages(imgL, imgR):
     
     # Calculer la map de disparité
     disparity = stereo.compute(imgL, imgR).astype(np.float32) / 16.0
-    
-    cv.namedWindow('Disparity')
+    disparity = cv.normalize(disparity, disparity, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
+    disparity = np.uint8(disparity)
+    cv.namedWindow('Disparity', cv.WINDOW_NORMAL)
+    cv.resizeWindow('Disparity', 1980, 1280)
     cv.createTrackbar('Min Disparity', 'Disparity', 16, 100, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Num Disparities', 'Disparity', 6, 10, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Block Size', 'Disparity', 16, 50, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Uniqueness Ratio', 'Disparity', 10, 50, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Speckle Window Size', 'Disparity', 100, 200, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Speckle Range', 'Disparity', 32, 100, lambda x: update_disparity(imgL, imgR))
+
+    cv.imshow('Disparity', (disparity - min_disp) / num_disp)
 
     update_disparity(imgL, imgR)
     cv.waitKey(0)
