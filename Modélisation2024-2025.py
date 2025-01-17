@@ -272,20 +272,20 @@ if __name__ == "__main__":
     Size = [5, 8]
     
     # Calibrate cameras and rectify images
-    cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
-    cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
+    # cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
+    # cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
     
     # Read rectified images in grayscale
     imageL = cv.imread(savename1, 0)
     imageR = cv.imread(savename2, 0)
     
     # Uncomment to perform stereo calibration and epipolar geometry
-    # pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
+    pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
     # EpipolarGeometry(pts1, pts2, F, maskF, imageL, imageR)
     
     # Read downsampled stereo images for depth map computation
-    imageL = cv.pyrDown(cv.imread('Images/aloeL.jpg'))
-    imageR = cv.pyrDown(cv.imread('Images/aloeR.jpg'))
+    imageL = cv.pyrDown(cv.imread('Images/scene_blue.jpg'))
+    imageR = cv.pyrDown(cv.imread('Images/scene_red.jpg'))
     
     # Compute and display the depth map
     DepthMapfromStereoImages(imageL, imageR)
