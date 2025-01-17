@@ -230,6 +230,28 @@ def EpipolarGeometry(pts1, pts2, F, maskF, img1, img2):
     cv.namedWindow('right', 0)
     cv.imshow('right', im_dst2)
     cv.waitKey(0)
+    
+def update_disparity(imgL, imgR):
+    
+    min_disp = cv.getTrackbarPos('Min Disparity', 'Disparity')
+    num_disp = cv.getTrackbarPos('Num Disparities', 'Disparity') * 16
+    block_size = cv.getTrackbarPos('Block Size', 'Disparity')
+    uniqueness_ratio = cv.getTrackbarPos('Uniqueness Ratio', 'Disparity')
+    speckle_window_size = cv.getTrackbarPos('Speckle Window Size', 'Disparity')
+    speckle_range = cv.getTrackbarPos('Speckle Range', 'Disparity')
+
+    stereo = cv.StereoSGBM_create(minDisparity=min_disp,
+                                  numDisparities=num_disp,
+                                  blockSize=block_size,
+                                  P1=8 * 3 * window_size ** 2,
+                                  P2=32 * 3 * window_size ** 2,
+                                  disp12MaxDiff=16,
+                                  uniquenessRatio=uniqueness_ratio,
+                                  speckleWindowSize=speckle_window_size,
+                                  speckleRange=speckle_range)
+    
+    disparity = stereo.compute(imgL, imgR).astype(np.float32) / 16.0
+    cv.imshow('Disparity', (disparity - min_disp) / num_disp)
 
 def DepthMapfromStereoImages(imgL, imgR):
     """_summary_
@@ -239,6 +261,7 @@ def DepthMapfromStereoImages(imgL, imgR):
         imgR (_type_): _description_
     """
     # Définir les paramètres pour l'algorithme de correspondance stéréo
+    global window_size
     window_size = 3
     min_disp = 16
     num_disp = 112 - min_disp
@@ -255,11 +278,24 @@ def DepthMapfromStereoImages(imgL, imgR):
     # Calculer la map de disparité
     disparity = stereo.compute(imgL, imgR).astype(np.float32) / 16.0
     
+    cv.namedWindow('Disparity')
+    cv.createTrackbar('Min Disparity', 'Disparity', 16, 100, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Num Disparities', 'Disparity', 6, 10, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Block Size', 'Disparity', 16, 50, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Uniqueness Ratio', 'Disparity', 10, 50, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Speckle Window Size', 'Disparity', 100, 200, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Speckle Range', 'Disparity', 32, 100, lambda x: update_disparity(imgL, imgR))
+
+    update_disparity(imgL, imgR)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    
+    
     # Afficher la map de disparité
-    plt.figure('3D')
-    plt.imshow((disparity - min_disp) / num_disp, 'gray')
-    plt.colorbar()
-    plt.show()
+    # plt.figure('3D')
+    # plt.imshow((disparity - min_disp) / num_disp, 'gray')
+    # plt.colorbar()
+    # plt.show()
 
 if __name__ == "__main__":
     # Define paths and parameters for camera calibration
@@ -272,16 +308,16 @@ if __name__ == "__main__":
     Size = [5, 8]
     
     # Calibrate cameras and rectify images
-    cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
-    cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
+    # cameraMatrix1, rect1 = CameraCalibration(Size, path1, path1image, savename1)
+    # cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
     
     # Read rectified images in grayscale
-    imageL = cv.imread(savename1, 0)
-    imageR = cv.imread(savename2, 0)
+    # imageL = cv.imread(savename1, 0)
+    # imageR = cv.imread(savename2, 0)
     
-    # Uncomment to perform stereo calibration and epipolar geometry
-    pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
-    EpipolarGeometry(pts1, pts2, F, maskF, imageL, imageR)
+    # # Uncomment to perform stereo calibration and epipolar geometry
+    # pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
+    # EpipolarGeometry(pts1, pts2, F, maskF, imageL, imageR)
     
     # Read downsampled stereo images for depth map computation
     imageL = cv.pyrDown(cv.imread('Images/scene_blue.jpg'))
