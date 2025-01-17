@@ -67,8 +67,8 @@ def CameraCalibration(Size, path, path1image, savename):
     h, w = img.shape[:2]
     
     # Obtenir la nouvelle matrice de la caméra optimale
-    newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-    print('newcameramtx\n', newcameramtx)
+    newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h)) # Renvoie la nouvelle matrice de calibration de la caméra
+    print('newcameramtx\n', newcameramtx) # print la nouvelle matrice de calibration de la caméra
 
     # Rectifier la déformation de l'image
     mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcameramtx, (w, h), 5)
@@ -92,7 +92,7 @@ def CameraCalibration(Size, path, path1image, savename):
         mean_error += error
     print("total error: {}".format(mean_error / len(objpoints)))
 
-    return newcameramtx, dst
+    return newcameramtx, dst # Renvoie la nouvelle matrice de calibration de la caméra et l'image rectifiée
 
 def drawlines(img1, img2, lines, pts1, pts2):
     """_summary_
@@ -171,7 +171,7 @@ def StereoCalibrate(rect1, rect2):
     print('E\n', E)
     
     # Récupérer la pose à partir de la matrice essentielle
-    retval, R, t, maskP = cv.recoverPose(E, pts1, pts2, identity, maskE)
+    retval, R, t, maskP = cv.recoverPose(E, pts1, pts2, identity, maskE) # Renvoie la matrice de rotation et le vecteur de translation
     print('R\n', R)
     print('t\n', t)
 
