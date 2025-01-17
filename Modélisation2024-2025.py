@@ -205,17 +205,17 @@ def DepthMapfromStereoImages(imgL, imgR):
 
 if __name__ == "__main__":
     ############ to adapt ##########################
-    path1 = 'Images/rouge/*.jpg'
-    path2 = 'Images/bleu/*.jpg'
+    path1 = 'Images/RedCam/*.jpg'
+    path2 = 'Images/BlueCam/*.jpg'
     #image à rectifier
-    path1image = 'Images/rouge2.jpg'
+    path1image = 'Images/RedCam/WIN_20250117_10_51_09_Pro.jpg'
     savename1 = 'Images/rougerect2.png'
-    path2image = 'Images/bleu2.jpg'
+    path2image = 'Images/BlueCam/WIN_20250117_10_50_36_Pro.jpg'
     savename2 = 'Images/bleurect2.png'
     Size = [5,8]
     #################################################
-    #cameraMatrix1, rect1 = CameraCalibration(Size,path1,path1image, savename1)
-    #cameraMatrix2, rect2 = CameraCalibration(Size,path2,path2image, savename2)
+    cameraMatrix1, rect1 = CameraCalibration(Size,path1,path1image, savename1)
+    cameraMatrix2, rect2 = CameraCalibration(Size,path2,path2image, savename2)
     ############ to adapt ##########################
     imageL = cv.imread(savename1, 0)
     imageR = cv.imread(savename2, 0)
