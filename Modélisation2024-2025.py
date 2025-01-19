@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on 2 Dec 2020
-Updated 9 Jan 2023
-@author: chatoux
+Updated 17 Jan 2025
+@author: chatoux, métais, mathieu, dunand
 """
 
 import numpy as np
@@ -251,7 +251,7 @@ def DepthMapfromStereoImages(imgL, imgR):
     cv.namedWindow('Disparity', cv.WINDOW_NORMAL)
     cv.resizeWindow('Disparity', 1980, 1280)
     cv.createTrackbar('Min Disparity', 'Disparity', 16, 100, lambda x: update_disparity(imgL, imgR))
-    cv.createTrackbar('Num Disparities', 'Disparity', 6, 10, lambda x: update_disparity(imgL, imgR))
+    cv.createTrackbar('Num Disparities', 'Disparity', 6, 20, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Block Size', 'Disparity', 16, 50, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Uniqueness Ratio', 'Disparity', 10, 50, lambda x: update_disparity(imgL, imgR))
     cv.createTrackbar('Speckle Window Size', 'Disparity', 100, 200, lambda x: update_disparity(imgL, imgR))
@@ -274,9 +274,9 @@ if __name__ == "__main__":
     # Define paths and parameters for camera calibration
     path1 = 'Images/RedCam/*.jpg'
     path2 = 'Images/BlueCam/*.jpg'
-    path1image = 'Images/scene_red.jpg'
+    path1image = 'Images/bouteille2_red.jpg'
     savename1 = 'Images/rougerect2.png'
-    path2image = 'Images/scene_blue.jpg'
+    path2image = 'Images/bouteille2_blue.jpg'
     savename2 = 'Images/bleurect2.png'
     Size = [5, 8]
     
@@ -285,16 +285,16 @@ if __name__ == "__main__":
     # cameraMatrix2, rect2 = CameraCalibration(Size, path2, path2image, savename2)
     
     # Read rectified images in grayscale
-    # imageL = cv.imread(path1image, 0)
-    # imageR = cv.imread(path2image, 0)
+    imageL = cv.imread(path1image, 0)
+    imageR = cv.imread(path2image, 0)
     
     # # Uncomment to perform stereo calibration and epipolar geometry
     # pts1, pts2, F, maskF = StereoCalibrate(imageL, imageR)
     # EpipolarGeometry(pts1, pts2, F, maskF, imageL, imageR)
     
     # Read downsampled stereo images for depth map computation
-    imageL = cv.pyrDown(cv.imread('Images/scene_blue.jpg'))
-    imageR = cv.pyrDown(cv.imread('Images/scene_red.jpg'))
+    imageL = cv.pyrDown(cv.imread("Images/bouteille1_red.jpg"))
+    imageR = cv.pyrDown(cv.imread("Images/bouteille1_blue.jpg"))
     
     # Compute and display the depth map
     DepthMapfromStereoImages(imageL, imageR)
